@@ -2,12 +2,20 @@ const mongoose = require('mongoose');
 
 const connectDatabase = () => {
     mongoose.set('strictQuery', true);
-    mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+
+    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || process.env.DB_URI;
+
+    if (!mongoUri) {
+        console.error('Missing MongoDB connection string. Set MONGO_URI (or MONGODB_URI/DB_URI) in your environment.');
+        return;
+    }
+
+    mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(async () => {
-        console.log("Mongoose Connected");
+        console.log('Mongoose Connected');
         await seedMockData();
     }).catch((error) => {
-        console.log(error);
+        console.error('MongoDB connection failed:', error);
     });
 }
 
